@@ -1,11 +1,10 @@
 package com.jl15988.stream.helper;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -150,5 +149,108 @@ public class CollectionStreams {
         return list.stream().map(v -> (String) mapper.apply(v)).collect(Collectors.joining(delimiter));
     }
 
-//    public static Collection<> convert
+    /**
+     * List 元素类型转换
+     *
+     * @param list   List 集合
+     * @param mapper 转换器
+     * @param <T>    List 元素类型
+     * @param <R>    转换后的元素类型
+     * @return 转换后的 List
+     */
+    public static <T, R> List<R> convert(Collection<T> list, Function<T, R> mapper) {
+        if (list == null) {
+            return null;
+        }
+        return list.stream().map(mapper).collect(Collectors.toList());
+    }
+
+    /**
+     * List 元素转为 String 类型,实际上调用的为元素内部的 toString 方法
+     *
+     * @param list List 集合
+     * @param <T>  List 元素类型
+     * @return 转换后的 List
+     */
+    public static <T> List<String> convertString(Collection<T> list) {
+        if (list == null) {
+            return null;
+        }
+        return list.stream().map(Object::toString).collect(Collectors.toList());
+    }
+
+    /**
+     * 判断 List 中的某个属性是否有目标值
+     *
+     * @param list        List 集合
+     * @param valueMapper 属性处理器
+     * @param target      目标值
+     * @param <T>         List 元素类型
+     * @param <V>         目标值类型
+     */
+    public static <T, V> boolean matchValue(Collection<T> list, Function<T, V> valueMapper, V target) {
+        return list.stream().anyMatch(t -> {
+            V value = valueMapper.apply(t);
+            if (value == null) {
+                return target == null;
+            } else {
+                return value.equals(target);
+            }
+        });
+    }
+
+    public static <T, V> boolean anyMatch(Collection<T> list, Predicate<T> predicate) {
+        return list.stream().anyMatch(predicate);
+    }
+
+    public static <T> List<T> update(Collection<T> list, Consumer<T> action) {
+        if (list == null) return null;
+        if (list.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return list.stream().peek(action).collect(Collectors.toList());
+    }
+
+    /**
+     * 根据字段去重
+     *
+     * @param list         List 集合
+     * @param keyMapper    字段处理器
+     * @param defaultValue 内容为空时的默认值
+     * @param <T>          List 元素类型
+     * @param <K>          字段对应值的类型
+     * @return 去重后的 List
+     */
+    public static <T, K> List<T> uniqueWithKey(Collection<T> list, Function<T, K> keyMapper, T defaultValue) {
+        return list.stream().collect(Collectors.collectingAndThen(
+                Collectors.toMap(keyMapper, v -> Optional.ofNullable(v).orElse(defaultValue), (v, v2) -> v),
+                kvMap -> new ArrayList<>(kvMap.values())
+        ));
+    }
+
+    /**
+     * 根据字段正向排序
+     *
+     * @param list         List 集合
+     * @param keyExtractor 字段处理器
+     * @param <T>          List 元素类型
+     * @param <K>          字段对应值的类型
+     * @return 排序后的 List
+     */
+    public static <T, K extends Comparable<? super K>> List<T> orderByAsc(Collection<T> list, Function<T, K> keyExtractor) {
+        return list.stream().sorted(Comparator.comparing(keyExtractor)).collect(Collectors.toList());
+    }
+
+    /**
+     * 根据字段反向排序
+     *
+     * @param list         List 集合
+     * @param keyExtractor 字段处理器
+     * @param <T>          List 元素类型
+     * @param <K>          字段对应值的类型
+     * @return 排序后的 List
+     */
+    public static <T, K extends Comparable<? super K>> List<T> orderByDesc(Collection<T> list, Function<T, K> keyExtractor) {
+        return list.stream().sorted(Comparator.comparing(keyExtractor).reversed()).collect(Collectors.toList());
+    }
 }

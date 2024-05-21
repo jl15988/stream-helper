@@ -1,11 +1,9 @@
 package com.jl15988.stream.helper;
 
+import com.jl15988.stream.helper.domain.Student;
 import com.jl15988.stream.helper.domain.User;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Jalon
@@ -43,5 +41,28 @@ public class StreamBuilderTest {
 
         String join = CollectionStreams.join(list, User::getName, "#");
         System.out.println(join);
+
+        Collection<String> convert = CollectionStreams.convert(list, User::getName);
+        System.out.println(convert);
+
+        boolean match = CollectionStreams.matchValue(list, User::getName, "小明");
+        boolean match2 = CollectionStreams.matchValue(list, User::getName, "1");
+        System.out.println(match);
+        System.out.println(match2);
+
+
+        List<Integer> unique = CollectionStreams.unique(list, User::getName, User::getAge, 2);
+        System.out.println(unique);
+        List<User> users = CollectionStreams.uniqueWithKey(list, User::getName, new User());
+        System.out.println(users);
+
+
+        List<User> users1 = CollectionStreams.orderByAsc(list, User::getAge);
+        List<User> users2 = CollectionStreams.orderByDesc(list, User::getAge);
+        System.out.println(CollectionStreams.convertString(users1));
+        System.out.println(CollectionStreams.convertString(users2));
+
+
+        System.out.println(CollectionStreams.toMap(null, o -> o, o -> o));
     }
 }
