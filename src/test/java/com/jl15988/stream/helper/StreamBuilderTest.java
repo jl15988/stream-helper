@@ -51,8 +51,8 @@ public class StreamBuilderTest {
         System.out.println(match2);
 
 
-        List<Integer> unique = CollectionStreams.unique(list, User::getName, User::getAge, 2);
-        System.out.println(unique);
+//        List<Integer> unique = CollectionStreams.unique(list, User::getName, User::getAge, 2);
+//        System.out.println(unique);
         List<User> users = CollectionStreams.uniqueWithKey(list, User::getName, new User());
         System.out.println(users);
 
